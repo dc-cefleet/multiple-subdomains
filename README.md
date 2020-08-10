@@ -10,5 +10,7 @@ Subdomain Proxy simply creates a proxy server to route subdomains to different p
 4. If you are not running the app as root (which you shouldn't) then setup ip tables to preroute to the correct ports.
 `
 sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
+`
+`
 sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8181
 `
