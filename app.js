@@ -1,7 +1,9 @@
 const https = require('https');
+const http = require('http');
 const fs = require('fs');
 const httpProxy = require('http-proxy');
-const {ssl,sub_domains, domain_name} = require('./config');
+
+const {listen_ports,ssl,sub_domains, domain_name} = require('./config');
 
 const options = {
 	key:fs.readFileSync(ssl.key),
@@ -14,8 +16,8 @@ const base = sub_domains.find(sub=>sub.host === '');
 
 const router = (req,res)=>{
 	let target;
-	let domain = req.headers.host;
-	let host = domain.split(":")[0];
+//	let domain = req.headers.host;
+	let host = req.headers.host.split(":")[0];
 	let sub_domain = sub_domains.find(sub=>sub.host+'.'+domain_name.toLowerCase() == host.toLowerCase());
 	if(sub_domain) return proxy.web(req,res,{target:{host:'localhost', port:sub_domain.port}})
 	
@@ -26,4 +28,11 @@ const router = (req,res)=>{
 
 }
 
-https.createServer(options, router).listen(ssl.port)
+https.createServer(options, router).listen(listen_ports.https)
+
+
+http.createServer((req, res)=>{
+	res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+	res.end();
+}).listen(listen_ports.http);
+
